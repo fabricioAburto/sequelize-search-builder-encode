@@ -3,7 +3,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "description": "HTTP Query String Parser",
+  "description": "HTTP Query String Parser / Encode",
   "files": [
     "dist",
     "src"
@@ -34,7 +34,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "sequelize-search-builder-encoder",
+  "name": "sequelize-search-builder-encode",
   "author": "Jose Aburto",
   "module": "dist/sequelize-search-builder-encoder.esm.js",
   "size-limit": [
