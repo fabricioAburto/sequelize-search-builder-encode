@@ -14,7 +14,7 @@ export const appendSeparator = (str = '', part = '') => {
 type Callback = (a: any) => any;
 
 export const helper = (
-  parentName = '',
+  parentName: string[],
   parentValue = {},
   encoder?: Callback
 ): string[] => {
@@ -23,12 +23,18 @@ export const helper = (
   for (const name of nodesName) {
     const value = parentValue[name as keyof {}];
     if (isPrimitive(value)) {
-      if (encoder) {
-        parts.push(encoder(`filter[${parentName}][${name}]=${value}`));
-      } else {
-        parts.push(`filter[${parentName}][${name}]=${value}`);
+      let finalParentName = '';
+
+      if (_.isArray(parentName)) {
+        for (let n of parentName) finalParentName += `[${n}]`;
       }
-    } else parts = [...parts, ...helper(name, value)];
+
+      if (encoder) {
+        parts.push(encoder(`filter${finalParentName}[${name}]=${value}`));
+      } else {
+        parts.push(`filter${finalParentName}[${name}]=${value}`);
+      }
+    } else parts = [...parts, ...helper([...parentName, name], value, encoder)];
   }
   return parts;
 };

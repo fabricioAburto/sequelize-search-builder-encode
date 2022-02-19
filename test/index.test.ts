@@ -13,6 +13,30 @@ describe('Sequelize Query Object Encoder', () => {
     expect(queryParser(input)).toBe('filter[name]=John&filter[surname]=Smith');
   });
 
+  test('[Filter]: Should nest values', () => {
+    const input = {
+      filter: {
+        owner: {
+          first_name: {
+            like: '%p%',
+          },
+          last_name: {
+            like: '%p%',
+          },
+          _condition: 'or',
+        },
+        email: {
+          like: '%pp%',
+        },
+        _condition: 'and',
+      },
+    };
+    let expected =
+      'filter[owner][first_name][like]=%p%&filter[owner][last_name][like]=%p%&filter[owner][_condition]=or';
+    expected += '&filter[email][like]=%pp%&filter[_condition]=and';
+    expect(queryParser(input)).toBe(expected);
+  });
+
   test('[Filter]: Should return filter[name]=John&filter[surname]=Smith&filter[_condition]=or', () => {
     const input = {
       filter: { name: 'John', surname: 'Smith', _condition: 'or' },

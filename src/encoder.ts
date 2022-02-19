@@ -29,7 +29,10 @@ export const parse = (params: any = {}, encode = false) => {
     for (const name of Object.keys(filter)) {
       const value = filter[name];
       if (isPrimitive(value)) parts.push(encoder(`filter[${name}]=${value}`));
-      else parts = [...parts, ...helper(name, value, encoder)];
+      else {
+        const nested = helper([name], value, encoder);
+        parts = [...parts, ...nested];
+      }
     }
   }
 
