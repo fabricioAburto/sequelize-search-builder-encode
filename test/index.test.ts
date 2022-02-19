@@ -1,12 +1,11 @@
-import URLEncoder, { queryParser } from '../src';
+import URLEncoder, { queryParser, decode } from '../src';
+/*
+ * All test are base on https://www.npmjs.com/package/sequelize-search-builder
+ * use all examples for input and expected values of every test., except the last one
+ * that test more indeep.
+ */
 
-/* 
-  All test are base on https://www.npmjs.com/package/sequelize-search-builder
-  use all examples for input and expected values of every test., except the last one 
-  that test more indeep.
-*/
-
-describe('Sequelize query Object Parse / Encoder', () => {
+describe('Sequelize Query Object Encoder', () => {
   test('[Filter]: Should return filter[name]=John&filter[surname]=Smith', () => {
     const input = { filter: { name: 'John', surname: 'Smith' } };
     expect(queryParser(input)).toBe('filter[name]=John&filter[surname]=Smith');
@@ -108,5 +107,35 @@ describe('Sequelize query Object Parse / Encoder', () => {
     expect(URLEncoder('https://codesandbox.io?name=2', input, false)).toBe(
       expected
     );
+  });
+});
+
+describe('Sequelize Query String Decoder', () => {
+  test('Should decode and encoded query string', () => {
+    const params = {
+      page: 0,
+      size: 2,
+      include: false,
+      filter: {
+        emailAddress: {
+          like: '%maria@gmail%',
+        },
+        contactPhone: {
+          like: '%911%',
+          _condition: 'or',
+        },
+        name: {
+          like: '%MARIA%',
+        },
+        fiscalId: {
+          like: '%xxxx%',
+        },
+        _condition: 'and',
+      },
+      order: { name: 'desc', fiscalId: 'asc' },
+    };
+
+    const encoded = URLEncoder('https://codesandbox.io?name=2', params);
+    expect(decode(encoded)).toEqual(params);
   });
 });
