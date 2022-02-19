@@ -7,8 +7,8 @@ export const isPrimitive = (val: any) => {
 };
 
 export const appendSeparator = (str = '', part = '') => {
-  if (str.includes('?')) return `${str}&${part}`;
-  else return `?${part}`;
+  if (_.isEmpty(str)) return part;
+  return `${str}&${part}`;
 };
 
 type Callback = (a: any) => any;

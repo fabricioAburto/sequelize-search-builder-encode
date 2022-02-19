@@ -39,5 +39,6 @@ export const parse = (params: any = {}, encode = false) => {
 };
 
 export const encode = (baseUrl = '', params = {}, encode = true) => {
-  return `${baseUrl}${parse(params, encode)}`;
+  const saparator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${saparator}${parse(params, encode)}`;
 };

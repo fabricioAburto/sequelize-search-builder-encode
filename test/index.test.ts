@@ -1,4 +1,4 @@
-import { queryParser } from '../src';
+import URLEncoder, { queryParser } from '../src';
 
 /* 
   All test are base on https://www.npmjs.com/package/sequelize-search-builder
@@ -7,17 +7,17 @@ import { queryParser } from '../src';
 */
 
 describe('Sequelize query Object Parse / Encoder', () => {
-  test('[Filter]: Should return ?filter[name]=John&filter[surname]=Smith', () => {
+  test('[Filter]: Should return filter[name]=John&filter[surname]=Smith', () => {
     const input = { filter: { name: 'John', surname: 'Smith' } };
-    expect(queryParser(input)).toBe('?filter[name]=John&filter[surname]=Smith');
+    expect(queryParser(input)).toBe('filter[name]=John&filter[surname]=Smith');
   });
 
-  test('[Filter]: Should return ?filter[name]=John&filter[surname]=Smith&filter[_condition]=or', () => {
+  test('[Filter]: Should return filter[name]=John&filter[surname]=Smith&filter[_condition]=or', () => {
     const input = {
       filter: { name: 'John', surname: 'Smith', _condition: 'or' },
     };
     expect(queryParser(input)).toBe(
-      '?filter[name]=John&filter[surname]=Smith&filter[_condition]=or'
+      'filter[name]=John&filter[surname]=Smith&filter[_condition]=or'
     );
   });
 
@@ -36,13 +36,13 @@ describe('Sequelize query Object Parse / Encoder', () => {
       },
     };
     expect(queryParser(input)).toBe(
-      '?filter[age][gt]=100&filter[age][lt]=10&filter[age][_condition]=or&filter[name][iLike]=%john%&filter[_condition]=or'
+      'filter[age][gt]=100&filter[age][lt]=10&filter[age][_condition]=or&filter[name][iLike]=%john%&filter[_condition]=or'
     );
   });
 
-  test('[Order]: Should return ?filter[name]=desc', () => {
+  test('[Order]: Should return filter[name]=desc', () => {
     const input = { order: { name: 'desc' } };
-    expect(queryParser(input)).toBe('?filter[name]=desc');
+    expect(queryParser(input)).toBe('filter[name]=desc');
   });
 
   test('[Complete]: Should parse all', () => {
@@ -64,7 +64,7 @@ describe('Sequelize query Object Parse / Encoder', () => {
       },
     };
     const expected =
-      '?page=1&include=true&filter[name]=desc&filter[age][gt]=100&filter[age][_condition]=or&filter[name][iLike]=%john%&filter[_condition]=or';
+      'page=1&include=true&filter[name]=desc&filter[age][gt]=100&filter[age][_condition]=or&filter[name][iLike]=%john%&filter[_condition]=or';
     expect(queryParser(input)).toBe(expected);
   });
 
@@ -88,8 +88,25 @@ describe('Sequelize query Object Parse / Encoder', () => {
       },
     };
     const expected =
-      '?filter[emailAddress][like]=%maria@gmail%&filter[contactPhone][like]=%911%&filter[contactPhone][_condition]=or&filter[name][like]=%MARIA%&filter[fiscalId][like]=%xxxx%&filter[_condition]=and';
+      'filter[emailAddress][like]=%maria@gmail%&filter[contactPhone][like]=%911%&filter[contactPhone][_condition]=or&filter[name][like]=%MARIA%&filter[fiscalId][like]=%xxxx%&filter[_condition]=and';
 
     expect(queryParser(input)).toBe(expected);
+  });
+
+  test('[URL]: Should add correct separator', () => {
+    const input = {
+      filter: {
+        emailAddress: {
+          like: '%maria@gmail%',
+        },
+        _condition: 'and',
+      },
+    };
+    const expected =
+      'https://codesandbox.io?name=2&filter[emailAddress][like]=%maria@gmail%&filter[_condition]=and';
+
+    expect(URLEncoder('https://codesandbox.io?name=2', input, false)).toBe(
+      expected
+    );
   });
 });
