@@ -38,6 +38,6 @@ export const parse = (params: any = {}, encode = false) => {
   return str;
 };
 
-export const encode = (baseUrl = '', params = {}, encode = false) => {
+export const encode = (baseUrl = '', params = {}, encode = true) => {
   return `${baseUrl}${parse(params, encode)}`;
 };
