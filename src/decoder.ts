@@ -2,23 +2,57 @@ import _ from 'lodash';
 
 const KNOWN_PARAMS = ['page', 'size', 'include'];
 
-export const handleSimpleParams = (param = '') => {
-  let paramName = '';
-  let paramValue: any = '';
+interface QueryObject {
+  filter?: any;
+  order?: any;
+  page?: number;
+  size?: number;
+  include?: boolean;
+}
+interface Resource {
+  url: string;
+  user_params: any;
+  query: QueryObject;
+}
+
+type KeyValue = {
+  isValid: boolean;
+  key: string;
+  value: any;
+};
+
+const getKeyValue = (param = '') => {
+  let res: KeyValue = { key: '', value: '', isValid: false };
   let paramParts = param.split('=');
+  if (!paramParts || paramParts.length < 2) return res;
 
-  if (!paramParts || paramParts.length < 2) return {};
-  if (paramParts) paramName = paramParts[0];
-  if (paramParts) paramValue = paramParts[1];
+  res.isValid = true;
+  res.key = paramParts[0];
+  res.value = paramParts[1];
+  return res;
+};
 
-  if (KNOWN_PARAMS.includes(paramName)) {
-    if (paramName === 'include') {
-      paramValue = paramValue === 'true';
-    } else paramValue = parseFloat(paramValue);
-    return { [paramName]: paramValue };
-  }
+const parseQueryParams = (k = '', v: any = '') => {
+  if (k === 'include') return v === 'true';
+  else return parseFloat(v);
+};
 
+export const handleSimpleParams = (param = '') => {
+  let { isValid, key, value } = getKeyValue(param);
+  if (isValid && KNOWN_PARAMS.includes(key))
+    return { [key]: parseQueryParams(key, value) };
   return {};
+};
+
+export const handleUserParams = (param = '', resource: Resource) => {
+  let { isValid, key, value } = getKeyValue(param);
+  if (!isValid) return resource;
+  if (!KNOWN_PARAMS.includes(key)) {
+    resource.user_params[key] = value;
+    const sep = resource.url.includes('?') ? '&' : '?';
+    resource.url += `${sep}${key}=${value}`;
+  }
+  return resource;
 };
 
 const handleOrder = (param = '') => {
@@ -52,19 +86,26 @@ const handleFilters = (param = '', parent = {}) => {
   return parent;
 };
 
-export const decode = (url = '') => {
+export const decode = (url = ''): Resource => {
   let decoded = decodeURIComponent(url).split('?');
-
+  let basicUrl = decoded[0];
   decoded = decoded[1].split('&');
 
   let obj = {},
     order = {},
-    filter = {};
+    filter = {},
+    resource = {
+      base_url: basicUrl,
+      url: basicUrl,
+      user_params: {},
+      query: {},
+    };
 
   for (let part of decoded) {
     if (part.match(/[a-zA-Z]+=/)) {
       const simpleParams = handleSimpleParams(part);
       obj = { ...obj, ...simpleParams };
+      resource = { ...resource, ...handleUserParams(part, resource) };
     } else if (part.includes('desc') || part.includes('asc')) {
       order = { ...order, ...handleOrder(part) };
     } else handleFilters(part, filter);
@@ -73,5 +114,6 @@ export const decode = (url = '') => {
   if (!_.isEmpty(filter)) obj = { ...obj, filter };
   if (!_.isEmpty(order)) obj = { ...obj, order };
 
-  return obj;
+  resource.query = obj;
+  return resource;
 };

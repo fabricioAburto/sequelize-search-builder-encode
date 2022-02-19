@@ -1,8 +1,10 @@
 import URLEncoder, { queryParser, decode } from '../src';
+
+import { handleUserParams } from '../src/decoder';
+
 /*
  * All test are base on https://www.npmjs.com/package/sequelize-search-builder
- * use all examples for input and expected values of every test., except the last one
- * that test more indeep.
+ * use all examples for input and expected values of every test.
  */
 
 describe('Sequelize Query Object Encoder', () => {
@@ -111,6 +113,25 @@ describe('Sequelize Query Object Encoder', () => {
 });
 
 describe('Sequelize Query String Decoder', () => {
+  test('Resource', () => {
+    let url = 'https://codesandbox.io';
+
+    let resource = {
+      base_url: url,
+      url,
+      user_params: {},
+      query: {},
+    };
+
+    expect(handleUserParams('name=2', resource)).toEqual({
+      base_url: url,
+      url: `${url}?name=2`,
+      user_params: {
+        name: '2',
+      },
+      query: {},
+    });
+  });
   test('Should decode and encoded query string', () => {
     const params = {
       page: 0,
@@ -136,6 +157,13 @@ describe('Sequelize Query String Decoder', () => {
     };
 
     const encoded = URLEncoder('https://codesandbox.io?name=2', params);
-    expect(decode(encoded)).toEqual(params);
+    expect(decode(encoded)).toEqual({
+      base_url: 'https://codesandbox.io',
+      url: 'https://codesandbox.io?name=2',
+      user_params: {
+        name: '2',
+      },
+      query: params,
+    });
   });
 });
