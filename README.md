@@ -1,5 +1,7 @@
 # sequelize-search-builder-encoder
 
+This is a lightweight library to convert (encode and decode) http search requests. 
+
 ## Installation
 
 ```bash

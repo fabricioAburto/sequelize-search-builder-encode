@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "name": "sequelize-search-builder-encode",
-  "description": "HTTP Query String Parser / Encode",
+  "description": "This is a lightweight library to convert (encode and decode) http search requests.",
   "author": "Jose Aburto <pino0071@gmail.com>",
   "module": "dist/sequelize-search-builder-encode.esm.js",
   "homepage": "https://github.com/PinoFlores/sequelize-search-builder-encode#readme",
