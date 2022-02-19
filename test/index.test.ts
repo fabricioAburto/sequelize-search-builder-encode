@@ -157,7 +157,9 @@ describe('Sequelize Query String Decoder', () => {
     };
 
     const encoded = URLEncoder('https://codesandbox.io?name=2', params);
-    expect(decode(encoded)).toEqual({
+    const decoded = decode(encoded);
+
+    expect(decoded).toEqual({
       base_url: 'https://codesandbox.io',
       url: 'https://codesandbox.io?name=2',
       user_params: {
